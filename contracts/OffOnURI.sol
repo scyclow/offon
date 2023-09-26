@@ -1,11 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/*
-
-
-
-*/
-
 pragma solidity ^0.8.17;
 
 import "./Dependencies.sol";
@@ -16,8 +10,8 @@ contract OffOnURI {
   using Strings for uint256;
 
   OffOn public baseContract;
-  string public description = 'If the artwork fails to render, try turning it off and on again.';
-  string public externalUrl = '';
+  string public description = 'To turn the artwork off and on, go to https://steviep.xyz/offon';
+  string public externalUrl = 'https://steviep.xyz/offon';
   string public license = 'CC BY-NC 4.0';
 
   constructor() {
@@ -30,18 +24,19 @@ contract OffOnURI {
       Base64.encode(rawSVG())
     );
 
+    string memory state = baseContract.latestHash() == 0 ? 'Off' : 'On';
+
     bytes memory json = abi.encodePacked(
       'data:application/json;utf8,',
       '{"name": "Have You Tried Turning It Off and On Again?",'
       '"description": "', description, '",'
       '"license": "', license, '",'
       '"external_url": "', externalUrl, '",'
-      '"attributes": [{"trait_type": "Artist", "value": "Steve Pikelny"}, {"trait_type": "Hash", "value": "', baseContract.latestHash().toString(),'"}],'
+      '"attributes": [{"trait_type": "State", "value": "', state,'"}, {"trait_type": "Last Turned On", "value": "', baseContract.lastTurnedOn().toString(),'"}, {"trait_type": "Last Turned Off", "value": "', baseContract.lastTurnedOff().toString(),'"}],'
       '"image": "', encodedSVG,
       '"}'
     );
     return string(json);
-
   }
 
   function rawSVG() public view returns (bytes memory) {
@@ -62,7 +57,6 @@ contract OffOnURI {
       );
     }
 
-
     return abi.encodePacked(svg, '</svg>');
   }
 
@@ -72,7 +66,7 @@ contract OffOnURI {
     uint256 hash,
     uint256 level,
     uint256 globalDelay
-  ) internal view returns (bytes memory) {
+  ) public view returns (bytes memory) {
     uint256 newHash = uint256(keccak256(abi.encodePacked(
       hash, xOff, yOff
     )));
@@ -102,7 +96,13 @@ contract OffOnURI {
     }
   }
 
-  function drawSubdivisionShape(uint256 xOff, uint256 yOff, uint256 boxSize, uint globalDelay, uint256 hash) internal pure returns (bytes memory) {
+  function drawSubdivisionShape(
+    uint256 xOff,
+    uint256 yOff,
+    uint256 boxSize,
+    uint256 globalDelay,
+    uint256 hash
+  ) public pure returns (bytes memory) {
     uint256 localHash = uint256(
       keccak256(
         abi.encodePacked(hash, xOff, yOff)
@@ -124,7 +124,6 @@ contract OffOnURI {
     uint256 fontSize = (boxSize*7/8);
     uint256 animationDelay = localHash % 20000;
 
-
     bytes memory computer = abi.encodePacked(
       '<text class="blink" font-size="',
       fontSize.toString(),
@@ -139,18 +138,10 @@ contract OffOnURI {
       '/20000)">',
       unicode'🖥️',
       '</text>'
-      // '<style> .small {font: italic 13px sans-serif; } .heavy {font: bold 30px sans-serif; } .Rrrrr {font: italic 40px serif; fill: red; } </style>'
-      // '<text x="20" y="35" class="small">My</text>'
-      // '<text x="40" y="35" class="heavy">cat</text>'
-      // '<text x="55" y="55" class="small">is</text>'
-      // '<text x="65" y="55" class="Rrrrr">Grumpy!</text>'
     );
-
-
 
     return abi.encodePacked(square, computer);
   }
-
 
 
   function updateMetadata(string calldata _externalUrl, string calldata _description, string calldata _license) external {

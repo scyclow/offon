@@ -27,7 +27,9 @@ app.get('/', async (_, res) => {
 
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>')
     await ooMock.turnOn()
+    console.log('lklklklklk')
     const tokenURI = await ooMock.tokenURI(0)
+    console.log('WTF??', tokenURI)
 
 
     const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
