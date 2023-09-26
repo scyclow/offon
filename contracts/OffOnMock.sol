@@ -1,13 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/*
-
-MOCK
-MOCK
-MOCK
-MOCK
-
-*/
 
 
 pragma solidity ^0.8.17;

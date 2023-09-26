@@ -65,5 +65,34 @@ describe('OffOn', () => {
       OffOn.connect(notOwner).turnOn(),
       'Only token owner can turn off or on'
     )
+
+    const OffOnEscrowFactory = await ethers.getContractFactory('OffOnDemo', artist)
+    const OffOnDemo = await OffOnEscrowFactory.deploy(OffOn.address)
+    await OffOnDemo.deployed()
+
+
+    await OffOn.connect(owner)[safeTransferFrom](owner.address, OffOnDemo.address, 0)
+
+    expect(await OffOn.ownerOf(0)).to.equal(OffOnDemo.address)
+
+    await OffOnDemo.connect(owner).turnOn()
+    await OffOnDemo.connect(notOwner).turnOff()
+    await OffOnDemo.connect(artist).turnOn()
+
+    await expectRevert(
+      OffOnDemo.connect(notOwner).withdraw(),
+      'Only owner can withdraw'
+    )
+
+    OffOnDemo.connect(artist).withdraw()
+
+
+    await expectRevert(
+      OffOnDemo.connect(notOwner).turnOff(),
+      'Only token owner can turn off or on'
+    )
+
+    expect(await OffOn.ownerOf(0)).to.equal(artist.address)
+
   })
 })

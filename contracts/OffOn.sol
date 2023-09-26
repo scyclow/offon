@@ -44,6 +44,8 @@ contract OffOn is ERC721, Ownable {
   uint16 private _royaltyBasisPoints = 1000;
 
   event MetadataUpdate(uint256 _tokenId);
+  event TurnOff();
+  event TurnOn(uint256 hash);
 
   constructor () ERC721('Have You Tried Turning It Off and On Again?', 'OFFON') {
     _royaltyBeneficiary = msg.sender;
@@ -61,12 +63,14 @@ contract OffOn is ERC721, Ownable {
     require(latestHash != 0, 'Cannot turn off if not on');
     latestHash = 0;
     lastTurnedOff = block.timestamp;
+    emit TurnOff();
   }
 
   function turnOn() external stateAction {
     require(latestHash == 0, 'Cannot turn on if not off');
     latestHash = block.difficulty;
     lastTurnedOn = block.timestamp;
+    emit TurnOn(latestHash);
   }
 
   function isOn() external view returns (bool) {
