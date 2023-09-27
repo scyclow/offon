@@ -189,7 +189,7 @@
           <button id="turnOnButton" style="display: none;">Turn On</button>
         </div>
 
-        <div id="historySection">
+        <div id="historySection" style="display: none;">
           <h3>History</h3>
           <ul id="history">
 
@@ -258,6 +258,7 @@
   const $console = $.id('console')
   const $turnOffButton = $.id('turnOffButton')
   const $turnOnButton = $.id('turnOnButton')
+  const $historySection = $.id('historySection')
   const $history = $.id('history')
 
   const rawOffOn = provider.rawContract(OFFON, offonABI)
@@ -337,6 +338,8 @@
           </div>
         </li>
       `).join('')
+
+      unhide($historySection)
     }
 
     updateEvents()
