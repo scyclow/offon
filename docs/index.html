@@ -217,22 +217,25 @@
     ConnectButton(provider),
   )
 
-  const network = 'goerli'
+  const network = 'mainnet'
 
   const OFFON = {
     local: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    goerli: '0x9fa9Db946b0dfC30628BF6F59B19A61c6dcAd446'
+    goerli: '0x9fa9Db946b0dfC30628BF6F59B19A61c6dcAd446',
+    mainnet: '0xA860D381A193A0811C77c8FCD881B3E9F245A419'
   }[network]
 
   const OFFON_URI = {
     local: '0xa16E02E87b7454126E5E10d957A927A7F5B5d2be',
-    goerli: '0x3d22D51Ab90E9B8a8F8F3Bf32B0a9935F8D65a99'
+    goerli: '0x3d22D51Ab90E9B8a8F8F3Bf32B0a9935F8D65a99',
+    mainnet: '0xA70F1a7434F25E3C0cE5D0D4665Fa34b96b32c10',
   }[network]
 
 
   const OFFON_DEMO = {
     local: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     goerli: '0xD2aC6951b6fF23f0246025667356ABc5a84D5C37'
+    mainnet: '',
   }[network]
 
   const offonABI = [
