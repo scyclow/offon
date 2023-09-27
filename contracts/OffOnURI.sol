@@ -19,11 +19,7 @@ contract OffOnURI {
   }
 
   function tokenURI(uint256) external view returns (string memory) {
-    bytes memory encodedSVG = abi.encodePacked(
-      'data:image/svg+xml;base64,',
-      Base64.encode(rawSVG())
-    );
-
+    uint256 hash = baseContract.latestHash();
     string memory state = baseContract.latestHash() == 0 ? 'Off' : 'On';
 
     bytes memory json = abi.encodePacked(
@@ -33,15 +29,20 @@ contract OffOnURI {
       '"license": "', license, '",'
       '"external_url": "', externalUrl, '",'
       '"attributes": [{"trait_type": "State", "value": "', state,'"}, {"trait_type": "Last Turned On", "value": "', baseContract.lastTurnedOn().toString(),'"}, {"trait_type": "Last Turned Off", "value": "', baseContract.lastTurnedOff().toString(),'"}],'
-      '"image": "', encodedSVG,
+      '"image": "', encodedSVG(hash),
       '"}'
     );
     return string(json);
   }
 
-  function rawSVG() public view returns (bytes memory) {
-    uint256 hash = baseContract.latestHash();
+  function encodedSVG(uint256 hash) public view returns (string memory) {
+    return string(abi.encodePacked(
+      'data:image/svg+xml;base64,',
+      Base64.encode(rawSVG(hash))
+    ));
+  }
 
+  function rawSVG(uint256 hash) public view returns (bytes memory) {
     string memory bgColor = hash > 0 ? '#fff' : '#000';
 
     bytes memory svg = abi.encodePacked(

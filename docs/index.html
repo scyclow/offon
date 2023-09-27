@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Have You Tried Turning It Off and On Again?</title>
-  <link rel="shortcut icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjA0OCAyMDQ4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxzdHlsZT4uYmxpbmt7YW5pbWF0aW9uOkJsaW5rIDJzIHN0ZXBzKDIsc3RhcnQpIGluZmluaXRlfUBrZXlmcmFtZXMgQmxpbmt7dG97dmlzaWJpbGl0eTpoaWRkZW59fTwvc3R5bGU+PHRleHQgY2xhc3M9ImJsaW5rIiBmb250LXNpemU9IjE3OTJweCIgeD0iOTYiIHk9IjE2MjQiIHN0eWxlPSJhbmltYXRpb24tZGVsYXk6IGNhbGMoLTJzKig1LzIwKSAqMTQ5OC8yMDAwMCkiPvCflqXvuI88L3RleHQ+PC9zdmc+">
+  <link id="favicon" rel="shortcut icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjA0OCAyMDQ4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IGZvbnQtc2l6ZT0iMTc5MnB4IiB4PSI5NiIgeT0iMTYyNCIgc3R5bGU9ImFuaW1hdGlvbi1kZWxheTogY2FsYygtMnMqKDUvMjApICoxNDk4LzIwMDAwKSI+8J+Wpe+4jzwvdGV4dD48L3N2Zz4=">
 
 
 
@@ -38,24 +38,48 @@
       background: #fefefe;
     }
 
-    h1 {
+    h1, h2, h3 {
       text-align: center;
-      font-size: 3em;
-      padding: 0.5em;
     }
 
-    @media (max-width: 580px) {
-      h1 {
-        font-size: 2em;
-      }
+    h1 {
+      font-size: 3em;
+      padding: 0.5em;
+      padding-bottom: 0;
+      margin-bottom: 0.1em;
+    }
+
+    h3 {
+      margin-bottom: 0.5em;
     }
 
     button {
       font-size: 2em;
       padding: 0.5em 1em;
       cursor: pointer;
+      margin-top: 0.5em;
     }
 
+    nav {
+      display: flex;
+      justify-content: center;
+      padding: 0 2vw;
+      margin-bottom: 1em;
+    }
+
+    nav a {
+      margin: 0 0.5em;
+    }
+
+    @media (max-width: 580px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      button {
+        font-size: 1.5em;
+      }
+    }
 
     .center {
       margin: auto;
@@ -84,16 +108,68 @@
       max-height: 70vh;
     }
 
+    #historySection {
+      margin-top: 2em;
+    }
+
+    ul#history {
+      list-style-type: none;
+      max-width: 300px;
+      padding: 10px;
+      margin: auto;
+      border: 1px dashed;
+    }
+
+    .historyItem + .historyItem {
+      border-top: 1px dashed;
+      padding-top: 0.5em;
+    }
+
+    .historyItem {
+      margin: 1em 0;
+    }
+    .historyItem * {
+      font-family: monospace;
+    }
+
+    .hashViewer {
+      font-family: monospace;
+      padding: 2vw;
+      word-break: break-all;
+    }
+
+
+
+    @media (max-width: 370px) {
+      .historyRow {
+        flex-direction: column;
+      }
+    }
+
+    footer {
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 1em;
+      text-align: center;
+    }
+
+
   </style>
 </head>
 <body>
-<main>
+<header>
   <h1>Have You Tried Turning It Off and On Again?</h1>
+  <nav>
+    <a href="" target="_blank" rel="nofollow">OpenSea</a>
+    <a href="" target="_blank" rel="nofollow">Etherscan</a>
+  </nav>
+</header>
+<main>
 
   <section>
     <connect-wallet id="wallet-connect">
       <section slot="noWeb3">
-        <h2 class="error center">Please visit this website in a web3-connected browser</h2>
+        <h2 class="error center" style="margin-top: 2em;">Please visit this website in a web3-connected browser</h2>
       </section>
 
       <section slot="notConnected">
@@ -107,16 +183,25 @@
       </section>
 
       <section slot="connected">
-        <div id="display"></div>
+        <div id="display">Rendering...</div>
         <div id="console"  class= "center" style="display: none;">
           <button id="turnOffButton" style="display: none;">Turn Off</button>
           <button id="turnOnButton" style="display: none;">Turn On</button>
-          <h2 id="processing" style="display: none;">Processing...</h2>
+        </div>
+
+        <div id="historySection">
+          <h3>Log</h3>
+          <ul id="history">
+
+          </ul>
         </div>
       </section>
     </connect-wallet>
   </section>
 </main>
+<footer>
+  <div><a href="https://steviep.xyz" target="_blank">steviep.xyz</a> (c) 2023</div>
+</footer>
 </body>
 
 <script src="./$.js"></script>
@@ -135,20 +220,33 @@
   const network = 'goerli'
 
   const OFFON = {
-    goerli: '0x0A0ED41c68fa65Dc43d6045afd41fbF2117DBD2E'
+    local: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    goerli: '0x9fa9Db946b0dfC30628BF6F59B19A61c6dcAd446'
+  }[network]
+
+  const OFFON_URI = {
+    local: '0xa16E02E87b7454126E5E10d957A927A7F5B5d2be',
+    goerli: '0x3d22D51Ab90E9B8a8F8F3Bf32B0a9935F8D65a99'
   }[network]
 
 
   const OFFON_DEMO = {
-    goerli: '0x8A1F75AcFDCd52D1e64714E40EC463762951783e'
+    local: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+    goerli: '0xD2aC6951b6fF23f0246025667356ABc5a84D5C37'
   }[network]
 
   const offonABI = [
+    'event TurnOff(uint256 timestamp)',
+    'event TurnOn(uint256 timestamp, uint256 hash)',
     'function tokenURI(uint256) external view returns (string)',
     'function isOn() external view returns (bool)',
     'function turnOff() external',
     'function turnOn() external',
     'function ownerOf(uint256) external view returns (address)',
+  ]
+
+  const offonURIABI = [
+    'function encodedSVG(uint256 hash) external view returns (string)',
   ]
 
   const offonDemoABI = [
@@ -160,30 +258,50 @@
   const $console = $.id('console')
   const $turnOffButton = $.id('turnOffButton')
   const $turnOnButton = $.id('turnOnButton')
-  const $processing = $.id('processing')
+  const $history = $.id('history')
+
+  const rawOffOn = provider.rawContract(OFFON, offonABI)
+
+  const offFilter = rawOffOn.filters.TurnOff()
+  const onFilter = rawOffOn.filters.TurnOn()
+
 
 
   provider.onConnect(async () => {
+    $display.innerHTML = `<h2>Processing...</h2>`
+
     const offon = await provider.contract(OFFON, offonABI)
+    const offonURI = await provider.contract(OFFON_URI, offonURIABI)
     const offonDemo = await provider.contract(OFFON_DEMO, offonDemoABI)
 
-    const [tokenURI, owner, isOn, signerAddr] = await Promise.all([
+    const [
+      tokenURI,
+      owner,
+      isOn,
+      signerAddr,
+    ] = await Promise.all([
       offon.tokenURI(0),
       offon.ownerOf(0),
       offon.isOn(),
-      provider.signer.getAddress()
+      provider.signer.getAddress(),
     ])
 
-    const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
+    let tokenURIStr = JSON.parse(
+      tokenURI.replace('data:application/json;utf8,', '')
+    ).image
 
-    $display.innerHTML = `<img src="${JSON.parse(tokenURIStr).image}">`
+    if (queryParams.hash) {
+      tokenURIStr = (await offonURI.encodedSVG(queryParams.hash)).replace('data:application/json;utf8,', '')
+    }
 
-    console.log(owner, signerAddr, offonDemo.address)
+
+    $display.innerHTML = `<img src="${tokenURIStr}">`
 
     if (owner === signerAddr || owner === offonDemo.address) {
-      console.log('blah')
       unhide($console)
     }
+
+    if (queryParams.hash) $console.innerHTML = `<div class="hashViewer">Viewing: ${queryParams.hash}</div>`
 
     if (isOn) {
       unhide($turnOffButton)
@@ -191,46 +309,123 @@
       unhide($turnOnButton)
     }
 
+    const updateEvents = async () => {
+      const [
+        offEvents,
+        onEvents,
+      ] = await Promise.all([
+        rawOffOn.queryFilter(offFilter),
+        rawOffOn.queryFilter(onFilter)
+      ])
+
+      const events = [...offEvents, ...onEvents]
+        .map(event => ({
+          event: event.event,
+          hash: event.args.hash,
+          timestamp: bnToN(event.args.timestamp)
+        }))
+        .sort((a, b) => b.timestamp - a.timestamp)
+
+
+      $history.innerHTML = events.map(event => `
+        <li class="historyItem">
+          <div class="historyRow">
+            <div><strong>${event.event}</strong></div>
+            ${event.hash ? `<div><a href="./?hash=${event.hash}">View</a></div>` : ''}
+            <div>${new Date(event.timestamp * 1000)}</div>
+          </div>
+        </li>
+      `).join('')
+    }
+
+    updateEvents()
+
 
     const offonController = owner === offonDemo.address ? offonDemo : offon
 
     $turnOffButton.onclick = async () => {
-      const tx = await offonController.connect(provider.signer).turnOff()
-      unhide($processing)
-      hide($turnOffButton)
 
-      const txReciept1 = await tx.wait(1)
-      hide($processing)
-      unhide($turnOnButton)
+      try {
+        const tx = await offonController.connect(provider.signer).turnOff()
+        $display.innerHTML = `<h2>Processing...</h2>`
+        hide($turnOffButton)
 
-      const tokenURI = await offon.tokenURI(0)
-      const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
-      $display.innerHTML = `<img src="${JSON.parse(tokenURIStr).image}">`
+        const txReciept1 = await tx.wait(1)
+        unhide($turnOnButton)
+
+        updateEvents()
+        const tokenURI = await offon.tokenURI(0)
+        const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
+        $display.innerHTML = `<img src="${JSON.parse(tokenURIStr).image}">`
+      } catch (e) {
+        unhide($turnOffButton)
+        if (e.data) {
+          $display.innerHTML = `<h2 class="error">${e.data.message}</h2>`
+        } else {
+          $display.innerHTML = `<h2 class="error">${e.message}</h2>`
+        }
+        console.log(e)
+      }
     }
 
     $turnOnButton.onclick = async () => {
-      const tx = await offonController.connect(provider.signer).turnOn()
-      unhide($processing)
-      hide($turnOnButton)
 
-      const txReciept1 = await tx.wait(1)
-      hide($processing)
-      unhide($turnOffButton)
+      try {
+        const tx = await offonController.connect(provider.signer).turnOn()
+        $display.innerHTML = `<h2>Processing...</h2>`
+        hide($turnOnButton)
 
-      const tokenURI = await offon.tokenURI(0)
-      const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
-      $display.innerHTML = `<img src="${JSON.parse(tokenURIStr).image}">`
+        const txReciept1 = await tx.wait(1)
+        unhide($turnOffButton)
+
+        updateEvents()
+        const tokenURI = await offon.tokenURI(0)
+        const tokenURIStr = tokenURI.replace('data:application/json;utf8,', '')
+        $display.innerHTML = `<img src="${JSON.parse(tokenURIStr).image}">`
+      } catch (e) {
+        unhide($turnOnButton)
+        if (e.data) {
+          $display.innerHTML = `<h2 class="error">${e.data.message}</h2>`
+        } else {
+          $display.innerHTML = `<h2 class="error">${e.message}</h2>`
+        }
+        console.log(e)
+      }
     }
+
 
   })
 
+  function unhide(element) {
+    $(element, 'display', '')
+  }
 
-function unhide(element) {
-  $(element, 'display', '')
-}
+  function hide(element) {
+    $(element, 'display', 'none')
+  }
 
-function hide(element) {
-  $(element, 'display', 'none')
-}
+  let faviconOn = true
+
+  setInterval(() => {
+    const existing = document.getElementById('favicon')
+    if (existing) document.head.removeChild(existing)
+    const link = document.createElement('link')
+    if (faviconOn) {
+
+      link.href = `data:image/svg+xml;base64,${btoa(
+        `<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="1" height="1" fill="none"></rect></svg>`
+      )}`
+    } else {
+      link.href = `data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjA0OCAyMDQ4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IGZvbnQtc2l6ZT0iMTc5MnB4IiB4PSI5NiIgeT0iMTYyNCIgc3R5bGU9ImFuaW1hdGlvbi1kZWxheTogY2FsYygtMnMqKDUvMjApICoxNDk4LzIwMDAwKSI+8J+Wpe+4jzwvdGV4dD48L3N2Zz4=`
+    }
+
+    link.rel = 'shortcut icon'
+    link.type = 'image/svg+xml'
+    link.id = 'favicon'
+    document.head.appendChild(link)
+
+    faviconOn = !faviconOn
+  }, 2000)
+
 </script>
 </html>

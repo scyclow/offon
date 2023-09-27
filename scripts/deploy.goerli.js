@@ -19,6 +19,7 @@ async function main() {
 
   console.log('OffOn', OffOn.address)
   console.log('OffOnDemo', OffOnDemo.address)
+  console.log('OffOnURI', await OffOn.tokenURIContract())
 
 }
 

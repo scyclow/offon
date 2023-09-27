@@ -1,19 +1,25 @@
+const safeTransferFrom = 'safeTransferFrom(address,address,uint256)'
+
+
 async function main() {
   const signers = await ethers.getSigners()
-  const fellowship = signers[0]
-
-  const FellowshipPatronPassFactory = await ethers.getContractFactory('FellowshipPatronPass', fellowship)
-  const FellowshipPatronPass = await FellowshipPatronPassFactory.deploy()
-  await FellowshipPatronPass.deployed()
+  const artist = signers[0]
 
 
-  await FellowshipPatronPass.connect(fellowship).mintBatch(fellowship.address, 20)
-  await FellowshipPatronPass.connect(fellowship).addProjectInfo(fellowship.address, fellowship.address, "Test 01")
-  await FellowshipPatronPass.connect(fellowship).logPassUse(0, 0)
-  await FellowshipPatronPass.connect(fellowship).logPassUse(1, 0)
-  await FellowshipPatronPass.connect(fellowship).logPassUse(2, 0)
+  const OffOnFactory = await ethers.getContractFactory('OffOn', artist)
+  const OffOn = await OffOnFactory.deploy()
+  await OffOn.deployed()
 
-  console.log('FellowshipPatronPass', FellowshipPatronPass.address)
+  const OffOnEscrowFactory = await ethers.getContractFactory('OffOnDemo', artist)
+  const OffOnDemo = await OffOnEscrowFactory.deploy(OffOn.address)
+  await OffOnDemo.deployed()
+
+  await OffOn.connect(artist)[safeTransferFrom](artist.address, OffOnDemo.address, 0)
+
+
+  console.log('OffOn', OffOn.address)
+  console.log('OffOnDemo', OffOnDemo.address)
+  console.log('OffOnURI', await OffOn.tokenURIContract())
 
 }
 
