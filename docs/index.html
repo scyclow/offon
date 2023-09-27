@@ -190,7 +190,7 @@
         </div>
 
         <div id="historySection">
-          <h3>Log</h3>
+          <h3>History</h3>
           <ul id="history">
 
           </ul>
@@ -292,6 +292,7 @@
 
     if (queryParams.hash) {
       tokenURIStr = (await offonURI.encodedSVG(queryParams.hash)).replace('data:application/json;utf8,', '')
+      $(document.body, 'background', '#ddd')
     }
 
 
@@ -301,7 +302,7 @@
       unhide($console)
     }
 
-    if (queryParams.hash) $console.innerHTML = `<div class="hashViewer">Viewing: ${queryParams.hash}</div>`
+    if (queryParams.hash) $console.innerHTML = `<div class="hashViewer">Viewing: ${queryParams.hash}<br><a href="./">Back</a></div>`
 
     if (isOn) {
       unhide($turnOffButton)
