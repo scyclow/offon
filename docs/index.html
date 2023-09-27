@@ -184,10 +184,12 @@
 
       <section slot="connected">
         <div id="display">Rendering...</div>
-        <div id="console"  class= "center" style="display: none;">
+        <div id="console"  class="center" style="display: none;">
           <button id="turnOffButton" style="display: none;">Turn Off</button>
           <button id="turnOnButton" style="display: none;">Turn On</button>
         </div>
+        <div id="acquireToken" class="center"></div>
+
 
         <div id="historySection" style="display: none;">
           <h3>History</h3>
@@ -263,6 +265,7 @@
   const $turnOnButton = $.id('turnOnButton')
   const $historySection = $.id('historySection')
   const $history = $.id('history')
+  const $acquireToken = $.id('acquireToken')
 
   const rawOffOn = provider.rawContract(OFFON, offonABI)
 
@@ -304,6 +307,8 @@
 
     if (owner === signerAddr || owner === offonDemo.address) {
       unhide($console)
+    } else {
+      $acquireToken.innerHTML = 'Acquire the OFFON token to turn the artwork off and on again.'
     }
 
     if (queryParams.hash) $console.innerHTML = `<div class="hashViewer">Viewing: ${queryParams.hash}<br><a href="./">Back</a></div>`
