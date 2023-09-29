@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <style type="text/css">
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    h2 {
+      text-align: center;
+    }
+
+    button {
+      font-size: 2em;
+      padding: 0.5em 1em;
+      cursor: pointer;
+      margin: auto;
+      margin-top: 0.5em;
+    }
+
+    .center {
+      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #connectWalletSection, #display {
+      height: 100vh;
+    }
+
+  </style>
+</head>
+<body>
+    <connect-wallet id="wallet-connect">
+      <section slot="noWeb3">
+        <h2 class="error center" style="margin-top: 2em;">Please visit this website in a web3-connected browser</h2>
+      </section>
+
+      <section slot="notConnected">
+        <section id="connectWalletSection" class="center">
+          <connect-button>
+            <button slot="button">Connect Wallet</button>
+            <div slot="loading">Loading...</div>
+            <div slot="error" class="error"></div>
+          </connect-button>
+        </section>
+      </section>
+
+      <section slot="connected">
+        <div id="display" class="center">Processing...</div>
+      </section>
+    </connect-wallet>
+</body>
+
+<script src="./$.js"></script>
+<script src="./webComponents.js"></script>
+<script src="./web3Components.js"></script>
+<script src="./connectWallet.js"></script>
+<script src="./min.ethers.js"></script>
+
+<script type="text/javascript">
+  const $display = $.id('display')
+
+  const provider = new Web3Provider()
+  mountComponents(
+    ConnectWallet(provider, 'connectWallet'),
+    ConnectButton(provider),
+  )
+
+  const network = 'mainnet'
+
+  const OFFON = {
+    mainnet: '0xA860D381A193A0811C77c8FCD881B3E9F245A419'
+  }[network]
+
+  const offonABI = [
+    'function tokenURI(uint256) external view returns (string)',
+    'function lastTurnedOff() external view returns (uint256)',
+    'function lastTurnedOn() external view returns (uint256)',
+  ]
+
+  provider.onConnect(async () => {
+    $display.innerHTML = `<h2>Processing...</h2>`
+
+    const offon = await provider.contract(OFFON, offonABI)
+    const tokenURI = await offon.tokenURI(0)
+    const tokenURIStr = JSON.parse(
+      tokenURI.replace('data:application/json;utf8,', '')
+    ).image
+    $display.innerHTML = `<img src="${tokenURIStr}" style="width:100%">`
+
+
+  })
+
+</script>
+</html>

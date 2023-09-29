@@ -183,7 +183,7 @@
       </section>
 
       <section slot="connected">
-        <div id="display">Rendering...</div>
+        <div id="display">Processing...</div>
         <div id="console"  class="center" style="display: none;">
           <button id="turnOffButton" style="display: none;">Turn Off</button>
           <button id="turnOnButton" style="display: none;">Turn On</button>
@@ -244,6 +244,8 @@
     'event TurnOff(uint256 timestamp)',
     'event TurnOn(uint256 timestamp, uint256 hash)',
     'function tokenURI(uint256) external view returns (string)',
+    'function lastTurnedOff() external view returns (uint256)',
+    'function lastTurnedOn() external view returns (uint256)',
     'function isOn() external view returns (bool)',
     'function turnOff() external',
     'function turnOn() external',

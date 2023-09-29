@@ -44,9 +44,14 @@ describe('OffOn', () => {
     const OffOn = await OffOnFactory.deploy()
     await OffOn.deployed()
 
+    const NotOffOnFactory = await ethers.getContractFactory('OffOn', notOwner)
+    const NotOffOn = await NotOffOnFactory.deploy()
+    await NotOffOn.deployed()
+
     await OffOn.connect(artist)[safeTransferFrom](artist.address, owner.address, 0)
 
     await OffOn.connect(owner).turnOn()
+    await time.increase(time.duration.minutes(2))
     await expectRevert(
       OffOn.connect(owner).turnOn(),
       'Cannot turn on if not off'
@@ -54,6 +59,7 @@ describe('OffOn', () => {
     expect(await OffOn.connect(owner).isOn()).to.equal(true)
 
     await OffOn.connect(owner).turnOff()
+    await time.increase(time.duration.minutes(2))
     await expectRevert(
       OffOn.connect(owner).turnOff(),
       'Cannot turn off if not on'
@@ -76,7 +82,19 @@ describe('OffOn', () => {
     expect(await OffOn.ownerOf(0)).to.equal(OffOnDemo.address)
 
     await OffOnDemo.connect(owner).turnOn()
+
+    await expectRevert(
+      OffOnDemo.connect(notOwner).turnOff(),
+      'Must wait at least 2 minutes'
+    )
+    await time.increase(time.duration.minutes(2))
     await OffOnDemo.connect(notOwner).turnOff()
+
+    await expectRevert(
+      OffOnDemo.connect(artist).turnOn(),
+      'Must wait at least 2 minutes'
+    )
+    await time.increase(time.duration.minutes(2))
     await OffOnDemo.connect(artist).turnOn()
 
     await expectRevert(
@@ -84,15 +102,23 @@ describe('OffOn', () => {
       'Only owner can withdraw'
     )
 
-    OffOnDemo.connect(artist).withdraw()
+    await NotOffOn.connect(notOwner)[safeTransferFrom](notOwner.address, OffOnDemo.address, 0)
+
+    await expectRevert(
+      OffOnDemo.connect(notOwner).withdraw(),
+      'Only owner can withdraw'
+    )
+
+    await OffOnDemo.connect(owner).withdraw()
 
 
+    await time.increase(time.duration.minutes(2))
     await expectRevert(
       OffOnDemo.connect(notOwner).turnOff(),
       'Only token owner can turn off or on'
     )
 
-    expect(await OffOn.ownerOf(0)).to.equal(artist.address)
+    expect(await OffOn.ownerOf(0)).to.equal(owner.address)
 
   })
 })

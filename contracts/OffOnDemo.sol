@@ -9,6 +9,8 @@ interface IOffOn {
   function turnOff() external;
   function turnOn() external;
   function safeTransferFrom(address from, address to, uint256 tokenId) external;
+  function lastTurnedOn() external view returns (uint256);
+  function lastTurnedOff() external view returns (uint256);
 }
 
 
@@ -17,7 +19,6 @@ contract OffOnDemo {
   address public owner;
 
   constructor (IOffOn _offOn) {
-    owner = msg.sender;
     offOn = _offOn;
   }
 
@@ -27,14 +28,24 @@ contract OffOnDemo {
   }
 
   function turnOff() external {
+    require(block.timestamp > offOn.lastTurnedOn() + 2 minutes, 'Must wait at least 2 minutes');
     offOn.turnOff();
   }
 
   function turnOn() external {
+    require(block.timestamp > offOn.lastTurnedOff() + 2 minutes, 'Must wait at least 2 minutes');
     offOn.turnOn();
   }
 
-  function onERC721Received(address, address, uint256, bytes calldata) external pure returns(bytes4) {
+  function onERC721Received(
+    address,
+    address from,
+    uint256,
+    bytes calldata
+  ) external returns(bytes4) {
+    if (msg.sender == address(offOn)) {
+      owner = from;
+    }
     return this.onERC721Received.selector;
   }
 }
