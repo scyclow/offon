@@ -295,17 +295,43 @@
       provider.signer.getAddress(),
     ])
 
-    let tokenURIStr = JSON.parse(
-      tokenURI.replace('data:application/json;utf8,', '')
-    ).image
 
     if (queryParams.hash) {
-      tokenURIStr = (await offonURI.encodedSVG(queryParams.hash)).replace('data:application/json;utf8,', '')
+      const tokenURIStr = (await offonURI.encodedSVG(queryParams.hash)).replace('data:application/json;utf8,', '')
       $(document.body, 'background', '#ddd')
+      $display.innerHTML = `<img src="${tokenURIStr}">`
+    } else {
+      const tokenURIStr = JSON.parse(
+        tokenURI.replace('data:application/json;utf8,', '')
+      ).image
+
+      let lastTurnedOff, lastTurnedOn
+      async function refreshArt() {
+        const updatedLastTurnedOff = bnToN(await offon.lastTurnedOff())
+        const updatedLastTurnedOn = bnToN(await offon.lastTurnedOn())
+console.log('refresh')
+        if (
+          !lastTurnedOff ||
+          !lastTurnedOn ||
+          lastTurnedOff !== updatedLastTurnedOff ||
+          lastTurnedOn !== updatedLastTurnedOn
+        ) {
+console.log('change')
+          const tokenURI = await offon.tokenURI(0)
+          const tokenURIStr = JSON.parse(
+            tokenURI.replace('data:application/json;utf8,', '')
+          ).image
+          $display.innerHTML = `<img src="${tokenURIStr}">`
+        }
+
+        lastTurnedOff = updatedLastTurnedOff
+        lastTurnedOn = updatedLastTurnedOn
+      }
+
+      refreshArt()
+      setInterval(refreshArt, 2000)
     }
 
-
-    $display.innerHTML = `<img src="${tokenURIStr}">`
 
     if (owner === signerAddr || owner === offonDemo.address) {
       unhide($console)

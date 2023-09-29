@@ -84,18 +84,38 @@
     'function lastTurnedOn() external view returns (uint256)',
   ]
 
+
   provider.onConnect(async () => {
     $display.innerHTML = `<h2>Processing...</h2>`
-
     const offon = await provider.contract(OFFON, offonABI)
-    const tokenURI = await offon.tokenURI(0)
-    const tokenURIStr = JSON.parse(
-      tokenURI.replace('data:application/json;utf8,', '')
-    ).image
-    $display.innerHTML = `<img src="${tokenURIStr}" style="width:100%">`
 
+    let lastTurnedOff, lastTurnedOn
+    async function refreshArt() {
+      const updatedLastTurnedOff = bnToN(await offon.lastTurnedOff())
+      const updatedLastTurnedOn = bnToN(await offon.lastTurnedOn())
+
+      if (
+        !lastTurnedOff ||
+        !lastTurnedOn ||
+        lastTurnedOff !== updatedLastTurnedOff ||
+        lastTurnedOn !== updatedLastTurnedOn
+      ) {
+        const tokenURI = await offon.tokenURI(0)
+        const tokenURIStr = JSON.parse(
+          tokenURI.replace('data:application/json;utf8,', '')
+        ).image
+        $display.innerHTML = `<img src="${tokenURIStr}" style="width:100%">`
+      }
+
+      lastTurnedOff = updatedLastTurnedOff
+      lastTurnedOn = updatedLastTurnedOn
+    }
+
+    refreshArt()
+    setInterval(refreshArt, 2000)
 
   })
+
 
 </script>
 </html>

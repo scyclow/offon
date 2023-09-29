@@ -61,7 +61,6 @@ class Web3Provider {
 
   async contract(contractAddr, abi) {
     const signer = await this.isConnected()
-    console.log(signer)
     return (new ethers.Contract(contractAddr, abi, this.provider)).connect(this.signer)
   }
 
