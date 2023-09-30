@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-
+// contract by steviep.eth
 
 pragma solidity ^0.8.17;
 
@@ -9,14 +9,13 @@ interface IOffOn {
   function turnOff() external;
   function turnOn() external;
   function safeTransferFrom(address from, address to, uint256 tokenId) external;
-  function lastTurnedOn() external view returns (uint256);
-  function lastTurnedOff() external view returns (uint256);
 }
 
 
 contract OffOnDemo {
   IOffOn public offOn;
   address public owner;
+  mapping(address => bool) public demoers;
 
   constructor (IOffOn _offOn) {
     offOn = _offOn;
@@ -28,13 +27,13 @@ contract OffOnDemo {
   }
 
   function turnOff() external {
-    require(block.timestamp > offOn.lastTurnedOn() + 2 minutes, 'Must wait at least 2 minutes');
     offOn.turnOff();
+    demoers[msg.sender] = true;
   }
 
   function turnOn() external {
-    require(block.timestamp > offOn.lastTurnedOff() + 2 minutes, 'Must wait at least 2 minutes');
     offOn.turnOn();
+    demoers[msg.sender] = true;
   }
 
   function onERC721Received(
@@ -45,7 +44,9 @@ contract OffOnDemo {
   ) external returns(bytes4) {
     if (msg.sender == address(offOn)) {
       owner = from;
+      return this.onERC721Received.selector;
+    } else {
+      return bytes4(0);
     }
-    return this.onERC721Received.selector;
   }
 }

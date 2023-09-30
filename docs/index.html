@@ -237,7 +237,7 @@
   const OFFON_DEMO = {
     local: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     goerli: '0xD2aC6951b6fF23f0246025667356ABc5a84D5C37',
-    mainnet: '0x0000000000000000000000000000000000000000',
+    mainnet: '0x3CF917AAd9Efc94849091FC43ddbfbf5b38c979e',
   }[network]
 
   const offonABI = [
@@ -309,14 +309,14 @@
       async function refreshArt() {
         const updatedLastTurnedOff = bnToN(await offon.lastTurnedOff())
         const updatedLastTurnedOn = bnToN(await offon.lastTurnedOn())
-console.log('refresh')
+
         if (
           !lastTurnedOff ||
           !lastTurnedOn ||
           lastTurnedOff !== updatedLastTurnedOff ||
           lastTurnedOn !== updatedLastTurnedOn
         ) {
-console.log('change')
+
           const tokenURI = await offon.tokenURI(0)
           const tokenURIStr = JSON.parse(
             tokenURI.replace('data:application/json;utf8,', '')

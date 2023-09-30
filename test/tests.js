@@ -38,6 +38,7 @@ describe('OffOn', () => {
     const artist = signers[0]
     const owner = signers[1]
     const notOwner = signers[2]
+    const rando = signers[3]
 
 
     const OffOnFactory = await ethers.getContractFactory('OffOn', artist)
@@ -51,7 +52,7 @@ describe('OffOn', () => {
     await OffOn.connect(artist)[safeTransferFrom](artist.address, owner.address, 0)
 
     await OffOn.connect(owner).turnOn()
-    await time.increase(time.duration.minutes(2))
+
     await expectRevert(
       OffOn.connect(owner).turnOn(),
       'Cannot turn on if not off'
@@ -59,7 +60,7 @@ describe('OffOn', () => {
     expect(await OffOn.connect(owner).isOn()).to.equal(true)
 
     await OffOn.connect(owner).turnOff()
-    await time.increase(time.duration.minutes(2))
+
     await expectRevert(
       OffOn.connect(owner).turnOff(),
       'Cannot turn off if not on'
@@ -83,18 +84,10 @@ describe('OffOn', () => {
 
     await OffOnDemo.connect(owner).turnOn()
 
-    await expectRevert(
-      OffOnDemo.connect(notOwner).turnOff(),
-      'Must wait at least 2 minutes'
-    )
-    await time.increase(time.duration.minutes(2))
+
     await OffOnDemo.connect(notOwner).turnOff()
 
-    await expectRevert(
-      OffOnDemo.connect(artist).turnOn(),
-      'Must wait at least 2 minutes'
-    )
-    await time.increase(time.duration.minutes(2))
+
     await OffOnDemo.connect(artist).turnOn()
 
     await expectRevert(
@@ -102,7 +95,11 @@ describe('OffOn', () => {
       'Only owner can withdraw'
     )
 
-    await NotOffOn.connect(notOwner)[safeTransferFrom](notOwner.address, OffOnDemo.address, 0)
+    await expectRevert(
+      NotOffOn.connect(notOwner)[safeTransferFrom](notOwner.address, OffOnDemo.address, 0),
+      'ERC721: transfer to non ERC721Receiver implementer'
+    )
+
 
     await expectRevert(
       OffOnDemo.connect(notOwner).withdraw(),
@@ -112,13 +109,16 @@ describe('OffOn', () => {
     await OffOnDemo.connect(owner).withdraw()
 
 
-    await time.increase(time.duration.minutes(2))
     await expectRevert(
       OffOnDemo.connect(notOwner).turnOff(),
       'Only token owner can turn off or on'
     )
 
     expect(await OffOn.ownerOf(0)).to.equal(owner.address)
+    expect(await OffOnDemo.demoers(artist.address)).to.equal(true)
+    expect(await OffOnDemo.demoers(owner.address)).to.equal(true)
+    expect(await OffOnDemo.demoers(notOwner.address)).to.equal(true)
+    expect(await OffOnDemo.demoers(rando.address)).to.equal(false)
 
   })
 })
