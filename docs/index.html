@@ -153,6 +153,10 @@
       text-align: center;
     }
 
+    #ownedBy {
+      margin-bottom: 1em;
+    }
+
 
   </style>
 </head>
@@ -162,20 +166,6 @@
   <nav>
     <a href="https://opensea.io/assets/ethereum/0xa860d381a193a0811c77c8fcd881b3e9f245a419/0" target="_blank" rel="nofollow">OpenSea</a>
     <a href="https://etherscan.io/address/0xA860D381A193A0811C77c8FCD881B3E9F245A419" target="_blank" rel="nofollow">Etherscan</a>
-  </nav>
-  <nav>
-    <h2>
-      <a href="https://unitlondon.com/nfts/have-you-tried-turning-it-off-and-on-again/" target="_blank" rel="nofollow" style="
-        text-decoration: none;
-        color: #00f;
-        display: inline-block;
-        margin-top: 0.25em;
-        padding: 0.5em;
-        border: 2px solid;
-      ">
-        Buy on Unit
-      </a>
-    </h2>
   </nav>
 </header>
 <main>
@@ -198,6 +188,7 @@
 
       <section slot="connected">
         <div id="display">Processing...</div>
+        <h2 id="ownedBy"></h2>
         <div id="console"  class="center" style="display: none;">
           <button id="turnOffButton" style="display: none;">Turn Off</button>
           <button id="turnOnButton" style="display: none;">Turn On</button>
@@ -273,6 +264,7 @@
   const offonDemoABI = [
     'function turnOff() external',
     'function turnOn() external',
+    'function owner() external view returns (address)',
   ]
 
   const $display = $.id('display')
@@ -282,6 +274,7 @@
   const $historySection = $.id('historySection')
   const $history = $.id('history')
   const $acquireToken = $.id('acquireToken')
+  const $ownedBy = $.id('ownedBy')
 
   const rawOffOn = provider.rawContract(OFFON, offonABI)
 
@@ -351,6 +344,15 @@
       unhide($console)
     } else {
       $acquireToken.innerHTML = 'Acquire the OFFON token to turn the artwork off and on again.'
+    }
+
+
+    if (owner === offonDemo.address) {
+      const realOwner = await offonDemo.connect(provider.signer).owner()
+      $ownedBy.innerHTML = `On loan to the public from <a href="https://etherscan.io/address/${realOwner}" target="_blank" rel="nofollow">${await formatAddr(realOwner, provider)}</a>`
+    } else {
+      $ownedBy.innerHTML = `Owned by <a href="https://etherscan.io/address/${owner}" target="_blank" rel="nofollow">${await formatAddr(owner, provider)}</a>`
+
     }
 
     if (queryParams.hash) $console.innerHTML = `<div class="hashViewer">Viewing: ${queryParams.hash}<br><a href="./">Back</a></div>`
@@ -449,6 +451,24 @@
 
 
   })
+
+  function isENS(ens) {
+    return ens.slice(-4) === '.eth'
+  }
+  async function formatAddr(addr, provider, truncate=true, nameLength=19) {
+    try {
+      const ens = await provider.getENS(addr)
+      if (ens.slice(-4) === '.eth') {
+        return ens.length > nameLength
+          ? ens.slice(0, nameLength-3) + '...'
+          : ens
+      } else {
+        return truncate ? truncateAddr(addr) : addr
+      }
+    } catch (e) {
+      return truncate ? truncateAddr(addr) : addr
+    }
+  }
 
   function unhide(element) {
     $(element, 'display', '')
